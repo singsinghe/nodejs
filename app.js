@@ -13,6 +13,9 @@ const mysql = require('mysql2')
 const connection = mysql.createConnection(process.env.DATABASE_URL)
 console.log('Connected to PlanetScale!')
 
+connection.query("SET time_zone='Asia/Seoul'"); 
+
+
 app.set('view engine','ejs') 
 app.set('views','./views')
  
@@ -43,9 +46,11 @@ app.post('/contactProc', (req, res) => {
    const memo = req.body.memo; 
  
    var sql = `insert into contact(name,phone,email,memo,regdate)
-   values('${name}','${phone}','${email}','${memo}',now() )`
-   
-   connection.query(sql, function (err, result){
+   values(?,?,?,?,now() )`
+    
+   var values = [name,phone,email,memo]; 
+
+   connection.query(sql, values, function (err, result){
        if(err) throw err; 
        console.log('자료 1개를 삽입하였습니다.');
        res.send("<script> alert('문의사항이 등록되었습니다.'); location.href='/';</script>"); 
@@ -73,6 +78,33 @@ app.get('/contactList', (req, res) => {
       res.render('contactList',{lists:results})
    })
    
+})
+
+
+
+app.get('/login', (req, res) => {
+   res.render('login')  
+})
+
+
+app.post('/loginProc', (req, res) => {
+   const user_id = req.body.user_id; 
+   const pw = req.body.pw; 
+ 
+   var sql = `select * from member  where user_id=? and pw=? `
+
+   var values = [user_id, pw]; 
+
+   connection.query(sql, values, function (err, result){
+       if(err) throw err;      
+       
+       if(result.length==0){
+         res.send("<script> alert('존재하지 않는 아이디입니다..'); location.href='/login';</script>");          
+       }else{  
+         res.send(result); 
+       }
+   })
+
 })
 
 

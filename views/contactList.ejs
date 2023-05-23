@@ -10,6 +10,7 @@
         <th> 연락처</th>
         <th> 이메일</th>
         <th> 문의내용 </th>
+        <th> 등록일</th>
         <th> 삭제 </th>
     </tr>
 
@@ -19,7 +20,8 @@
         <td> <%=item.name%> </td>
         <td> <%=item.phone%> </td>
         <td> <%=item.email%> </td>
-        <td> <%=item.memo%> </td>
+        <td> <%-item.memo.replaceAll("\n","<br>")%> </td>
+        <td> <%=item.regdate%> </td>
         <td> <a href="/contactDelete?idx=<%=item.idx%>" onclick="return confirm('정말 삭제할까요?')">삭제</a></td>
 
     </tr>
