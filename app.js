@@ -4,6 +4,8 @@ const ejs = require('ejs')
 const app = express()
 const port = 3000
 var bodyParser = require('body-parser')
+var session = require('express-session')
+
 
 require('dotenv').config()
 
@@ -22,7 +24,26 @@ app.set('views','./views')
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(__dirname+'/public')) 
  
+app.use(session({ secret: 'unidago', cookie: { maxAge: 60000 }, resave:true, saveUninitialized:true, }))
+
+app.use((req, res, next) => {    
+
+
+   res.locals.user_id = "";
+   res.locals.name = "";
+
+   if(req.session.member){ 
+      res.locals.user_id = req.session.member.user_id 
+      res.locals.name = req.session.member.name 
+   }
+   next()
+ })
+
+
+
 app.get('/', (req, res) => {
+   console.log(req.session.member); 
+
    res.render('index')   // ./views/index.ejs  
 })
 
@@ -101,10 +122,24 @@ app.post('/loginProc', (req, res) => {
        if(result.length==0){
          res.send("<script> alert('존재하지 않는 아이디입니다..'); location.href='/login';</script>");          
        }else{  
-         res.send(result); 
+         console.log(result[0]); 
+
+         req.session.member = result[0]  
+         res.send("<script> alert('로그인 되었습니다.'); location.href='/';</script>");          
+         //res.send(result); 
        }
    })
 
+})
+
+
+
+app.get('/logout', (req, res) => {
+   
+   req.session.member = null; 
+   res.send("<script> alert('로그아웃 되었습니다.'); location.href='/';</script>");          
+        
+    
 })
 
 
